@@ -1,0 +1,13 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+      "module": "esnext",
+      "target": "es5",
+      "moduleResolution": "node",
+      "composite": true,
+      "declaration": true,
+      "declarationMap": true,
+      "sourceMap": true
+    }
+  }
+  

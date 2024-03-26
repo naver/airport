@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "target": "es5",
+      "lib": ["esnext", "dom"],
+      "noImplicitAny": true,
+      "declaration": true,
+      "sourceMap": true,
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "types": ["react", "jest", "node", "webpack-env"],
+      "typeRoots": ["node_modules/@types"]
+    },
+    "exclude": ["node_modules", "__tests__", "packages/docs"]
+  }

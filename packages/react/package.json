@@ -1,0 +1,23 @@
+{
+  "name": "@airport/react",
+  "version": "1.0.0",
+  "author": "jeongseok oh <jeongseok.ooh@navercorp.com>, junsoo choi <junsoo.choi@navercorp.com>",
+  "license": "MIT",
+  "main": "./build/cjs/index.js",
+  "module": "./build/index.js",
+  "browser": {
+    "./build/cjs/index.js": "./build/index.js"
+  },
+  "typings": "./build/index.d.ts",
+  "scripts": {
+    "clean": "rimraf build .cache tsconfig.tsbuildinfo",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@airport/js": "^1.0.0"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  }
+}
