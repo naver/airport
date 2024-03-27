@@ -4,7 +4,7 @@
 
 import * as React from 'react'
 
-import { Airport, LS, Options, TimezoneType } from '@airport/js'
+import { Airport, LS, Options, TimezoneType } from 'airport-js'
 
 export interface AirportContextType<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
   airport: Airport<T, G>

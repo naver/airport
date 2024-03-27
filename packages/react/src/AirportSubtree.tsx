@@ -2,7 +2,7 @@
 // Copyright 2024-present NAVER Corp.
 // MIT License
 
-import { Airport, TimezoneType } from '@airport/js'
+import { Airport, TimezoneType } from 'airport-js'
 import * as React from 'react'
 
 import { AirportContext } from './AirportProvider'

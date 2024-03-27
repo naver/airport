@@ -9,11 +9,11 @@ sidebar_position: 2
 ### 1. Installation
 Using npm:
 ```bash
-npm install @airport/js
+npm install airport-js
 ```
 Using yarn:
 ```bash
-yarn add @airport/js
+yarn add airport-js
 ```
 
 ### 2. Instantiate airport
@@ -46,18 +46,18 @@ const airport = new Airport({
 ### 1. Installation
 Using npm:
 ```bash
-npm install @airport/react
+npm install airport-react
 ```
 
 Using yarn:
-```
-yarn add @airport/react
+```bash
+yarn add airport-react
 ```
 
 ### 2. Add Provider to Root Container
 ```tsx
 import * as React from 'react'
-import { AirportProvider } from '@airport/react'
+import { AirportProvider } from 'airport-react'
 
 import App from './App'
 
@@ -78,7 +78,7 @@ function Root() {
 ### 3. use Airport through `useAirport`
 ```tsx
 import * as React from 'react'
-import { useAirport } from '@airport/react'
+import { useAirport } from 'airport-react'
 
 function App() {
   const { setLocale, t, fc, fnow } = useAirport()

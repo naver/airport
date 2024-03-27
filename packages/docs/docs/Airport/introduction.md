@@ -9,7 +9,7 @@ sidebar_position: 1
 
 ## React binding module support
 
-By using `@airport/react`, you can use `Airport` made for React. `Airport` also includes `Subtree` feature that you can use to set separate locale to some part of the component tree.
+By using `airport-react`, you can use `Airport` made for React. `Airport` also includes `Subtree` feature that you can use to set separate locale to some part of the component tree.
 
 <img width="100%" alt="Airport Logo" src="https://github.com/naver/airport/blob/main/images/subtree-diagram.png?raw=true"/>
 

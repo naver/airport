@@ -1,17 +1,18 @@
 {
-  "name": "@airport/js",
-  "version": "1.0.0",
+  "name": "airport-js",
+  "version": "1.0.1",
   "author": "jeongseok oh <jeongseok.ooh@navercorp.com>, junsoo choi <junsoo.choi@navercorp.com>",
   "license": "MIT",
   "main": "./build/cjs/index.js",
-  "module": "./build/index.js",
-  "browser": {
-    "./build/cjs/index.js": "./build/index.js"
-  },
-  "typings": "./build/index.d.ts",
+  "module": "./build/cjs/index.js",
+  "files": [
+    "build/",
+    "build/cjs/index.d.ts"
+  ],
   "scripts": {
     "clean": "rimraf build .cache tsconfig.tsbuildinfo",
-    "test": "jest"
+    "test": "jest",
+    "build": "npx tsc -p tsconfig.cjs.json"
   },
   "dependencies": {
     "dayjs": "1.11.10"
@@ -28,5 +29,5 @@
     "url": "https://github.com/naver/airport/issues"
   },
   "homepage": "https://naver.github.io/airport",
-  "description": ""
+  "description": "Comprehensive internationalization library"
 }

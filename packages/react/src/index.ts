@@ -3,4 +3,4 @@ export { AirportSubtree } from './AirportSubtree'
 
 export { useAirport } from './useAirport'
 
-export * from '@airport/js'
+export * from 'airport-js'

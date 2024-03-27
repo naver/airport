@@ -3,7 +3,7 @@
 // MIT License
 
 import * as React from 'react'
-import { LS } from '@airport/js'
+import { LS } from 'airport-js'
 
 import { AirportContext, AirportContextType } from './AirportProvider'
 
