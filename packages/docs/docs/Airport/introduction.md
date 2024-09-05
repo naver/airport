@@ -61,6 +61,60 @@ airport.t('hello')
 
 <br/>
 
+## Easy to customize
+
+Using `airport`, you can simply add wrappers to elaborate and add features you need.
+
+### Sample feature: Display LS key
+
+There are cases when Product Managers or other non-developers need to update language sets.
+In theses cases, it is hard to identify which key to update without actually looking into the code.
+Following the sample code that shows LS key in place.
+
+- `${YOUR_DOMAIN}?_SHOW_LS_ID_`
+
+![image](./img/lsKeyDisplay.png)
+
+<details>
+<summary>Sample Code</summary>
+
+```ts
+import { useAirport as _useAirport, LocaleMap } from 'airport-react'
+import { AirportType, LocaleType } from '../const/airport'
+import { GlobalLSType } from '../const/airport/globalLS'
+
+export const useAirport = () => {
+  const airport = _useAirport<GlobalLSType, LocaleType>()
+
+  const t: typeof airport.t = (...args: any[]) => {
+    const [lsoOrGlobalLSKey, variableMap, forcedLocale] = args
+    const translatedText = airport.t(lsoOrGlobalLSKey as LocaleMap<LocaleType, string>, variableMap, forcedLocale)
+    if (typeof window === 'undefined') return translatedText
+
+    let lsKey = lsoOrGlobalLSKey?.__KEY__ ?? ''
+    let lsID = lsKey.split('#').pop()
+
+    const isGlobalKey = typeof lsoOrGlobalLSKey === 'string'
+    if (isGlobalKey && !lsKey) {
+      lsID = lsKey
+    }
+    const urlParams = new URLSearchParams(window.location.search)
+
+    if (urlParams.has('_SHOW_LS_ID_')) return lsID ?? ''
+    return translatedText
+  }
+
+  return {
+    ...airport,
+    t,
+    airport: { ...airport.airport, t } as AirportType,
+  }
+}
+
+```
+
+</details>
+
 ## Number/DateTime/Currency format customization based on `Intl`
 
 - Number/DateTime/Currency is formatted using `Intl`
@@ -127,3 +181,4 @@ console.log(price) // "₩108,827"
 ## VanillaJS support 
 
 You can use Airport without ReactJS. See `Installation > Use airport with vanillaJS`
+
