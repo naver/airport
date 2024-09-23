@@ -1,6 +1,6 @@
 {
   "name": "airport-js",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "author": "jeongseok oh <jeongseok.ooh@navercorp.com>, junsoo choi <junsoo.choi@navercorp.com>",
   "license": "MIT",
   "main": "./build/cjs/index.js",
@@ -12,11 +12,9 @@
   "scripts": {
     "clean": "rimraf build .cache tsconfig.tsbuildinfo",
     "test": "jest",
-    "build": "npx tsc -p tsconfig.cjs.json"
+    "build": "rimraf build && npx tsc -p tsconfig.cjs.json"
   },
-  "dependencies": {
-    "dayjs": "1.11.10"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/naver/airport.git"

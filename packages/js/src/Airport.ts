@@ -2,40 +2,8 @@
 // Copyright 2024-present NAVER Corp.
 // MIT License
 
-import * as dayjs from 'dayjs'
-
-import * as utc from 'dayjs/plugin/utc'
-import * as isBetween from 'dayjs/plugin/isBetween'
-import * as isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
-import * as isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
-import * as duration from 'dayjs/plugin/duration'
-
-import customTimezonePlugin from './dayjsPlugins/customTimezonePlugin'
-import diffInCalendarDays from './dayjsPlugins/diffInCalendarDays'
-import diffInCalendarMonths from './dayjsPlugins/diffInCalendarMonths'
-import diffInCalendarYears from './dayjsPlugins/diffInCalendarYears'
-import isToday from './dayjsPlugins/isToday'
-import overrideComparisions from './dayjsPlugins/overrideComparisions'
-
-import { getDayjsLocales } from './getDayjsLocales'
-
-import { Currency, CurrencyMap, CurrencyType, Datetime, ImprovedNumberFormatOptions, LocaleMap, LS, LSO, Options, PartialLSO, TimezoneType } from './types'
-import { checkIsStringWithoutOffset, createLSFactory, deepEqual, getLocalDayjs, roundOperation } from './utils'
-
-const dayjsPlugins = [utc, customTimezonePlugin, isBetween, isSameOrAfter, isSameOrBefore, diffInCalendarDays, diffInCalendarMonths, diffInCalendarYears, isToday, duration, overrideComparisions]
-export type __preserveImport__ = typeof utc
-                              | typeof isBetween
-                              | typeof isSameOrAfter
-                              | typeof isSameOrBefore
-                              | typeof duration
-                              | typeof customTimezonePlugin
-                              | typeof diffInCalendarDays
-                              | typeof diffInCalendarMonths
-                              | typeof diffInCalendarYears
-                              | typeof isToday
-                              | typeof overrideComparisions
-
-const supportedDayjsLocales = getDayjsLocales()
+import { Currency, CurrencyMap, CurrencyType, ImprovedNumberFormatOptions, LocaleMap, LS, LSO, Options, PartialLSO } from './types'
+import { createLSFactory, deepEqual, roundOperation } from './utils'
 
 /**
  * **Create Airport instance**
@@ -63,8 +31,6 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
   private currencyFormat: CurrencyMap<string>
   private keyCurrency: CurrencyType = Currency.USD
   private exchangeRate?: CurrencyMap<number>
-  private timezone: TimezoneType = Intl.DateTimeFormat().resolvedOptions().timeZone
-  private localTimezoneOnly: boolean = false
 
   private cachedNumberFormat: Intl.NumberFormat
   private cachedNumberFormatOptions: Intl.NumberFormatOptions
@@ -76,13 +42,11 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     this.supportedLocales = options.supportedLocales
     this.globalLS = (options.globalLS ?? {}) as G
 
-    this.setupDayjs()
     this.setupFallbackLocale(options.fallbackLocale)
     this.setupLocale(options.locale)
     this.setupOptions(options)
 
     this.t = this.t.bind(this)
-    this.dayjs = this.dayjs.bind(this)
 
     this.cachedNumberFormat = new Intl.NumberFormat(options.locale, this.cachedNumberFormatOptions)
     this.cachedCurrencyFormat = new Intl.NumberFormat(options.locale, this.cachedCurrencyFormatOptions)
@@ -110,23 +74,10 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     return this.dayjsLocaleMap[this.locale]
   }
 
-  getTimezone = () => {
-    return this.timezone
-  }
-
   changeLocale = (nextLocale: T[number]) => {
     this.setupLocale(nextLocale)
     this.cachedNumberFormat = new Intl.NumberFormat(nextLocale, this.cachedNumberFormatOptions)
     this.cachedCurrencyFormat = new Intl.NumberFormat(nextLocale, this.cachedCurrencyFormatOptions)
-  }
-
-  changeTimezone = (timezone: TimezoneType) => {
-    this.timezone = timezone
-
-    const timezoneData = dayjs.tz.getTimezoneData(timezone)
-    if (!this.localTimezoneOnly && [null, undefined].includes(timezoneData)) {
-      dayjs.tz.refreshDTF(timezone)
-    }
   }
 
   /**
@@ -187,48 +138,6 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     } finally {
       return translated
     }
-  }
-
-  /**
-   * **Function to format current datetime and return**
-   *
-   * @param format - Date format to apply
-   * @param [timezone] - Timezone to use instead of default timezone
-   * @param [_forcedLocale] - Locale to use instead of default locale
-   */
-  fnow = (format: string, timezone?: TimezoneType, _forcedLocale?: T[number]) => {
-    const usingTimezone = timezone ?? this.timezone
-
-    if (_forcedLocale) {
-      const locale = this.getDayjsLocale(_forcedLocale)
-      return this.dnow(usingTimezone).locale(locale).format(format)
-    }
-    return this.dnow(usingTimezone).format(format)
-  }
-
-  /**
-   * **Function to format the given datetime and return**
-   *
-   * @param datetime - Date and time to format
-   * @param [format] - Date format to apply (default: 'YYYY-MM-DDTHH:mm:ssZ')
-   * @param [timezone] - Timezone to use instead of default timezone
-   * @param [_forcedLocale] - Locale to use instead of default locale
-   */
-  fd = (datetime: Datetime, format?: string, timezone?: TimezoneType, _forcedLocale?: T[number]) => {
-    const usingTimezone = timezone ?? this.timezone
-
-    if (!format && (typeof datetime === 'number' || datetime instanceof Date)) {
-      if (this.localTimezoneOnly) {
-        return this.fdi(datetime, {}, _forcedLocale)
-      }
-      return this.fdi(datetime, { timeZone: usingTimezone }, _forcedLocale)
-    }
-
-    if (_forcedLocale) {
-      const locale = this.getDayjsLocale(_forcedLocale)
-      return this.d(datetime, usingTimezone).locale(locale).format(format)
-    }
-    return this.d(datetime, usingTimezone).format(format)
   }
 
   /**
@@ -294,100 +203,6 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     return this.formatCurrency(exchangedValue, currentCurrency, customFormat, _forcedLocale)
   }
 
-  /**
-   * **Day.js function embedded into Airport**
-   *
-   * **It has the same format as Day.js**
-   *
-   * https://day.js.org/docs/en/installation/installation
-   *
-   * @returns Day.js wrapper object
-   */
-  // 4th case uses locale instead of forcedLocale
-  // But forcedLocale is kept to stick to the convention of passing forcedLocale as the last parameter
-  dayjs(date?: dayjs.ConfigType): dayjs.Dayjs
-  dayjs(date?: dayjs.ConfigType, _forcedLocale?: T[number]): dayjs.Dayjs
-  dayjs(date?: dayjs.ConfigType, format?: dayjs.OptionType, strict?: boolean, _forcedLocale?: T[number]): dayjs.Dayjs
-  dayjs(date?: dayjs.ConfigType, format?: dayjs.OptionType, locale?: string, strict?: boolean, _forcedLocale?: T[number]): dayjs.Dayjs
-  dayjs(date?: dayjs.ConfigType, formatOrForcedLocale?: T[number] | dayjs.OptionType, strictOrLocale?: boolean | string, _forcedLocaleOrStrict?: T[number] | boolean) {
-    if (this.localTimezoneOnly) {
-      return this.dayjsLocal(date, formatOrForcedLocale, strictOrLocale, _forcedLocaleOrStrict)
-    }
-
-    // If date doesn't include offset in its string, use locale offset
-    if (checkIsStringWithoutOffset(date)) {
-      return this._dayjs(date, formatOrForcedLocale, strictOrLocale, _forcedLocaleOrStrict, true)
-    }
-    return this._dayjs(date, formatOrForcedLocale, strictOrLocale, _forcedLocaleOrStrict)
-  }
-
-  private getUniversalDate(date: dayjs.ConfigType) {
-    if (typeof date !== 'string') {
-      return date
-    }
-    return date
-  }
-
-  private _dayjs(date?: dayjs.ConfigType, formatOrForcedLocale?: T[number] | dayjs.OptionType, strictOrLocale?: boolean | string, _forcedLocaleOrStrict?: T[number] | boolean, keepLocalTime = false) {
-    const usingDate = this.getUniversalDate(date)
-
-    if (!formatOrForcedLocale) {
-      return dayjs(usingDate).tz(this.timezone, keepLocalTime)
-    } else if (typeof formatOrForcedLocale === 'string') {
-      const locale = this.getDayjsLocale(formatOrForcedLocale)
-      return dayjs(usingDate).tz(this.timezone, keepLocalTime).locale(locale)
-    }
-
-    if (!['boolean', 'string'].includes(typeof strictOrLocale)) {
-      return dayjs(usingDate, formatOrForcedLocale).tz(this.timezone, keepLocalTime)
-    }
-
-    if (!['boolean', 'string'].includes(typeof _forcedLocaleOrStrict)){
-      return dayjs(usingDate, formatOrForcedLocale, strictOrLocale as boolean).tz(this.timezone, keepLocalTime)
-    } else if (typeof _forcedLocaleOrStrict === 'string') {
-      const locale = this.getDayjsLocale(_forcedLocaleOrStrict)
-      return dayjs(usingDate, formatOrForcedLocale, strictOrLocale as boolean).tz(this.timezone, keepLocalTime).locale(locale)
-    } else {
-      return dayjs(usingDate, formatOrForcedLocale, strictOrLocale as string, _forcedLocaleOrStrict).tz(this.timezone, keepLocalTime)
-    }
-  }
-
-  private dayjsLocal(date?: dayjs.ConfigType, formatOrForcedLocale?: T[number] | dayjs.OptionType, strictOrLocale?: boolean | string, _forcedLocaleOrStrict?: T[number] | boolean) {
-    if (!formatOrForcedLocale) {
-      return dayjs(date)
-    } else if (typeof formatOrForcedLocale === 'string') {
-      const locale = this.getDayjsLocale(formatOrForcedLocale)
-      return dayjs(date).locale(locale)
-    }
-
-    if (!['boolean', 'string'].includes(typeof strictOrLocale)) {
-      return dayjs(date, formatOrForcedLocale)
-    }
-
-    if (!['boolean', 'string'].includes(typeof _forcedLocaleOrStrict)){
-      return dayjs(date, formatOrForcedLocale, strictOrLocale as boolean)
-    } else if (typeof _forcedLocaleOrStrict === 'string') {
-      const locale = this.getDayjsLocale(_forcedLocaleOrStrict)
-      return dayjs(date, formatOrForcedLocale, strictOrLocale as boolean).locale(locale)
-    } else {
-      return dayjs(date, formatOrForcedLocale, strictOrLocale as string, _forcedLocaleOrStrict)
-    }
-  }
-
-  private dnow(timezone?: TimezoneType) {
-    if (this.localTimezoneOnly) {
-      return dayjs()
-    }
-    return dayjs().tz(timezone)
-  }
-
-  private d(date?: dayjs.ConfigType, timezone?: TimezoneType) {
-    if (this.localTimezoneOnly) {
-      return dayjs(date)
-    }
-    return getLocalDayjs(date, dayjs, timezone)
-  }
-
   private formatCurrency(value: number, targetCurrency: CurrencyType, customFormat?: string, _forcedLocale?: T[number]) {
     let format
     if (customFormat) format = customFormat
@@ -396,16 +211,6 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     return format
       ? this.t(format, { [this.currencyFormatValueKey]: this.fn(value) })
       : this.getCurrencyFormatInstance({ style: 'currency', currency: targetCurrency }, _forcedLocale).format(value)
-  }
-
-  // format datetime via Intl
-  private fdi(datetime: number | Date, options?: Intl.DateTimeFormatOptions, _forcedLocale?: T[number]) {
-    const fdiOptions = options ?? {}
-
-    if (_forcedLocale) {
-      return new Intl.DateTimeFormat(_forcedLocale, fdiOptions).format(datetime)
-    }
-    return new Intl.DateTimeFormat(this.getLocale(), fdiOptions).format(datetime)
   }
 
   private setupLocale(locale: T[number]) {
@@ -440,9 +245,6 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     this.locale = locale
     this.language = language
     this.region = region
-
-    const nextDayjsLocale = this.getDayjsLocale(locale)
-    dayjs.locale(nextDayjsLocale)
   }
 
   // Function to renew and return cached instance of NumberFormat.
@@ -467,10 +269,6 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     return this.cachedCurrencyFormat
   }
 
-  private getDayjsLocale(locale: T[number]) {
-    return this.dayjsLocaleMap[locale] ?? this.dayjsLocaleMap[this.fallbackLocale] ?? 'en'
-  }
-
   private useFallbackLocale() {
     this.applyLocale(this.fallbackLocale, this.fallbackLanguage, this.fallbackRegion)
   }
@@ -483,41 +281,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     return this.supportedLocales.includes(locale) || (language && this.supportedLocales.includes(language))
   }
 
-  private setupDayjs() {
-    dayjsPlugins.forEach(plugin => dayjs.extend(plugin))
-
-    if (this.dayjsLocaleMap) return
-
-    this.dayjsLocaleMap = this.supportedLocales.reduce((acc, locale: T[number]) => {
-      const [language] = this.splitLocale(locale)
-      // en-GB needs to be converted to en-gb.
-      // language is always lowercase.
-      const lowercasedLocaleForDayjs = locale.toLowerCase()
-      if (supportedDayjsLocales.includes(lowercasedLocaleForDayjs as any)) {
-        acc[locale] = lowercasedLocaleForDayjs
-      } else if (supportedDayjsLocales.includes(language as any)) {
-        acc[locale] = language
-      } else {
-        acc[locale] = 'en'
-      }
-      require(`dayjs/locale/${acc[locale]}.js`)
-      return acc
-    }, {} as LocaleMap<T, string>)
-  }
-
   private setupOptions(options: Options<T, G>) {
-    if (typeof options.localTimezoneOnly === 'boolean') {
-      this.localTimezoneOnly = options.localTimezoneOnly
-    }
-    if (options.timezone) {
-      this.timezone = options.timezone
-      if (!this.localTimezoneOnly && !Object.keys(options.timezoneData ?? {}).includes(options.timezone)) {
-        dayjs.tz.refreshDTF(options.timezone)
-      }
-    }
-    if (options.timezoneData) {
-      dayjs.tz.useTimezoneData(options.timezoneData)
-    }
     this.setupCurrency(options)
   }
 

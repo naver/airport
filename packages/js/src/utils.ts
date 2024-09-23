@@ -2,8 +2,7 @@
 // Copyright 2024-present NAVER Corp.
 // MIT License
 
-import * as dayjs from 'dayjs'
-import { LS, PartialLS, RoundingMode, TimezoneType } from './types'
+import { LS, PartialLS, RoundingMode } from './types'
 
 /**
  * **createLS wrapper function**
@@ -22,39 +21,6 @@ export function createLSFactory<T extends ReadonlyArray<string>, isAllRequired e
 }
 
 const offsetRegEx = new RegExp(/[+-]\d\d:?\d\d|Z/)
-
-// Additional work is required if Array, Object Plugin is applied.
-export function checkIsStringWithoutOffset(date: dayjs.ConfigType) {
-  return typeof date === 'string' && !offsetRegEx.test(date)
-}
-
-export function getLocalDayjs(
-  date: dayjs.ConfigType,
-  dayjsFactory: typeof dayjs,
-  instanceTimezone: TimezoneType,
-): dayjs.Dayjs {
-  // Return if dayjs object already has timezone set.
-  // Check if localOffset is set by user
-  if (date instanceof dayjs) {
-    const dateDayjs = date as dayjs.Dayjs
-    if (dateDayjs.$x.$timezone === instanceTimezone && !dateDayjs.$x.$localOffset) {
-      return dateDayjs
-    }
-    return dateDayjs.tz(instanceTimezone)
-  }
-
-  let returnDayjs: dayjs.Dayjs
-  if (instanceTimezone) {
-    if (checkIsStringWithoutOffset(date)) {
-      returnDayjs = dayjsFactory(date).tz(instanceTimezone, true)
-    } else {
-      returnDayjs = dayjsFactory(date).tz(instanceTimezone)
-    }
-  } else {
-    returnDayjs = dayjsFactory(date)
-  }
-  return returnDayjs
-}
 
 // Deep compare function to determine whether NumberFormat instance has an option change
 // Caution - this function is not considering all the common deep comparison cases of javascript

@@ -2,8 +2,6 @@
 // Copyright 2024-present NAVER Corp.
 // MIT License
 
-import * as dayjs from 'dayjs'
-
 type AtLeastOneRequired<T> = {
   [Key in keyof T]-?: Required<Pick<T, Key>> & Partial<Omit<T, Key>>
 }[keyof T];
@@ -20,9 +18,6 @@ export interface Options<T extends ReadonlyArray<string>, G extends LS<T> = {}> 
   currencyFormat?: CurrencyMap<string>
   keyCurrency?: CurrencyType
   exchangeRate?: CurrencyMap<number>
-  timezone?: TimezoneType
-  timezoneData?: TimezoneDataMap
-  localTimezoneOnly?: boolean
 }
 
 export type RoundingMode = 'ceil' | 'floor' | 'round'
@@ -32,7 +27,7 @@ export type RoundingMode = 'ceil' | 'floor' | 'round'
  *
  * roundingMode - this option supports only three modes('ceil', 'floor', 'round')
  */
-export interface ImprovedNumberFormatOptions extends Intl.NumberFormatOptions {
+export interface ImprovedNumberFormatOptions extends Omit<Intl.NumberFormatOptions, 'roundingMode'> {
   roundingMode?: RoundingMode
 }
 
@@ -52,26 +47,6 @@ export type CurrencyMap<T> = {
  */
 export type LocaleMap<T extends ReadonlyArray<string>, V> = {
   [locale in T[number]]: V
-}
-
-/**
- * **Map type to store timezone-specific data**
- */
-export type TimezoneDataMap = {
-  [timezone in TimezoneType]: TimezoneData | number
-}
-
-export interface TimezoneData {
-  offset: number // e.g. 540 for 'Asia/Seoul'
-  history?: null
-  dst?: null // DstPeriod | DstPeriod[]
-}
-
-export interface DstPeriod {
-  start: string // e.g. '2am March 2nd Sunday'
-  end: string // e.g. '2am Nomember 1st Sunday'
-  offset: number // e.g. 600 for 'Asia/Seoul' 1950 summer
-  since?: number
 }
 
 /**
@@ -118,14 +93,6 @@ export enum Currency {
   JPY = 'JPY',
   USD = 'USD',
 }
-
-export type TimezoneType = Timezone | string
-export enum Timezone {
-  AsiaSeoul = 'Asia/Seoul',
-  AsiaTokyo = 'Asia/Tokyo',
-}
-
-export type Datetime = string | number | Date | dayjs.Dayjs
 
 declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(lso: LSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
 declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(partialLso: PartialLSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
