@@ -115,34 +115,15 @@ export const useAirport = () => {
 
 </details>
 
-## Number/DateTime/Currency format customization based on `Intl`
+## Number/Currency format customization based on `Intl`
 
-- Number/DateTime/Currency is formatted using `Intl`
+- Number/Currency is formatted using `Intl`
 - If you want to customize the format, it can be done manually instead of ICU(International Components for Unicode) or Unicode CLDR(Common Locale Data Repository)
 
 
 ```tsx
 airport.fn(1000) // Number formatting with Intl
-
-airport.fd(date) // Date formatting with Intl
-airport.fd(date, 'YYYY-MM-DD') // Date formatting with custom format
-
 airport.fc(99000) // Currency formatting. Customized format will be used if passed as an option at instantiation.
-```
-
-<br/>
-
-## DateTime handling and Timezone support
-
-- Minimalist JavaScript library, dayjs is used to support Date/Time manipulation and Timezone.
-
-```tsx
-const now = airport.dayjs()
-const after1hour = now.add(1, 'hour')
-
-airport.fd(date) // Date formatting using timezone specified at the instantiation. Intl format is used
-airport.fd(date, 'YYYY-MM-DD') // Date formatting using timezone specified at the instantiation. Custom format is used
-airport.fd(date, 'YYYY-MM-DD', 'Asia/Seoul') // Date formatting using timezone passed as the argument. Custom format is used
 ```
 
 <br/>

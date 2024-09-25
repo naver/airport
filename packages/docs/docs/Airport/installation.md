@@ -18,6 +18,8 @@ yarn add airport-js
 
 ### 2. Instantiate airport
 ```ts
+import { Airport, createLSFactory } from 'airport-js';
+
 const airport = new Airport({ 
   supportedLocales:['ko', 'en'],
   locale:"ko",
@@ -35,8 +37,18 @@ const airport = new Airport({
     USD: 1,
     KRW: 1000,
   },
-  timezone:"Asia/Seoul"
 })
+
+const createLS = createLSFactory<typeof supportedLocales>()
+
+const LLS = createLS({
+  hello: {
+    ko: '안녕하세요',
+    en: 'Hello'
+  }
+})
+
+console.log(airport.t(LLS.hello))
 ```
 
 
@@ -56,13 +68,11 @@ yarn add airport-react
 
 ### 2. Add Provider to Root Container
 ```tsx
-import * as React from 'react'
 import { AirportProvider } from 'airport-react'
-
 import App from './App'
 
 // Declare supportedLocales as const for Typescript typing
-const supportedLocales = ['ko', 'ja', 'en'] as const
+const supportedLocales = ['ko', 'en'] as const
 
 function Root() {
   return <AirportProvider
@@ -81,7 +91,7 @@ import * as React from 'react'
 import { useAirport } from 'airport-react'
 
 function App() {
-  const { setLocale, t, fc, fnow } = useAirport()
+  const { setLocale, t, fc } = useAirport()
   // ...
 }
 ```

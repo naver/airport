@@ -60,35 +60,6 @@ const region = airport.getRegion()
 ```
 
 <!-- -->
-### `getDayjsLocaleName()`
-Retrieves current locale suited for dayjs format.
-locale is converted to lowercase (ex: `en-GB` -> `en-gb`)
-
-**Arguments**
-- none
-
-**Returns**
-- `(string)`: current locale in string lowercase
-
-```ts
-const dayjsLocaleName = airport.getDayjsLocaleName()
-```
-
-<!-- -->
-### `getTimezone()`
-Retrieves current timezone.
-
-**Arguments**
-- none
-
-**Returns**
-- `(Timezone | string)`: current timezone in string
-
-```ts
-const timezone = airport.getTimezone()
-```
-
-<!-- -->
 ### `changeLocale(locale: LocaleText)`
 Change locale to desired locale.
 
@@ -101,21 +72,6 @@ Change locale to desired locale.
 ```ts
 const newLocale = `ko`
 airport.changeLocale(newLocale)
-```
-
-<!-- -->
-### `changeTimezone(timezone: Timezone | string)`
-change timezone to desired timezone.
-
-**Arguments**
-- `timezone(Timezone | string)`: any `Timezone` or timezone string to change timezone to.
-
-**Returns**
-- none
-
-```ts
-const newTimezone = 'Asia/Tokyo'
-airport.changeTimezone(newTimezone)
 ```
 
 <!-- -->
@@ -178,42 +134,6 @@ console.log(airport.t(LS.hello, undefined, 'ko'))
 ```
 
 <!-- -->
-### `fnow(format: string, timezone?: TimezoneType, _forcedLocale?: T[number])`
-Returns datetime string with desired format of now.
-
-**Arguments**
-- `format(string)`: Dayjs format string.
-- `timezone(Timezone | string)`(optional): custom timezone to apply instead of current timezone.
-- `_forcedLocale(LocaleText)`(optional): custom locale to apply instead of current locale.
-
-**Returns**
-- `(string)`: formatted datetime string of now
-
-```ts
-console.log(airport.fnow('YYYY-MM-DDTHH:mm:ssZ'))
-```
-
-
-<!-- -->
-### `fd(datetime: Datetime, format?: string, timezone?: TimezoneType, _forcedLocale?: T[number])`
-Returns datetime string with desired format of datetime argument.
-If format is not specified, `Intl.DateTimeFormat` is used.
-
-**Arguments**
-- `datetime(string | number | Date | dayjs.Dayjs)`: datetime to format.
-- `format(string)`(optional): Dayjs format string.
-- `timezone(Timezone | string)`(optional): custom timezone to apply instead of current timezone.
-- `_forcedLocale(LocaleText)`(optional): custom locale to apply instead of current locale.
-
-**Returns**
-- `(string)`: formatted datetime string of `datetime` argument
-
-```ts
-console.log(airport.fd(new Date(),'YYYY/MM/DD'))
-```
-
-
-<!-- -->
 ### `fn(value: number, options?: ImprovedNumberFormatOptions, _forcedLocale?: T[number])`
 Formats given number value appropriate to current locale
 
@@ -270,25 +190,3 @@ console.log(airport.fc(10000, undefined, USD))
 // USD 10,000
 console.log(airport.fc(10000, undefined, USD, true)) 
 ```
-
-
-<!-- -->
-### `dayjs(date?: dayjs.ConfigType): dayjs.Dayjs`
-- `dayjs(date?: dayjs.ConfigType): dayjs.Dayjs`
-- `dayjs(date?: dayjs.ConfigType, _forcedLocale?: T[number]): dayjs.Dayjs`
-- `dayjs(date?: dayjs.ConfigType, format?: dayjs.OptionType, strict?: boolean, _forcedLocale?: T[number]): dayjs.Dayjs`
-- `dayjs(date?: dayjs.ConfigType, format?: dayjs.OptionType, locale?: string, strict?: boolean, _forcedLocale?: T[number]): dayjs.Dayjs`
-
-Returns `dayjs` object with current locale and timezone.
-Same as `dayjs` signature, but with extra argument, `_forcedLocale`.
-
-**Arguments**
-- `date(dayjs.ConfigType)`: Same as first argument of dayjs. Supports `Date`, `string`, `dayjs.Dayjs` and more.
-- `format(dayjs.OptionType)`(optional): Same as dayjs format string.
-- `strict(boolean)`(optional): 
-- `locale(string)`(optional): custom locale to apply instead of current locale.
-- `_forcedLocale(LocaleText)`(optional): custom locale to apply instead of current locale.
-  - **Warning: In 4th signature, `locale` is used instead of `_forcedLocale`**
-
-**Returns**
-- `(dayjs.Dayjs)`

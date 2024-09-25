@@ -45,10 +45,3 @@ type CurrencyMap<T> = {
   [currency in CurrencyType]?: T
 }
 ```
-
-### TimezoneDataMap
-```ts
-type TimezoneDataMap = {
-  [timezone in TimezoneType]: TimezoneData | number
-}
-```
