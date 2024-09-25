@@ -4,13 +4,12 @@
 
 import * as React from 'react'
 
-import { Airport, LS, Options, TimezoneType } from 'airport-js'
+import { Airport, LS, Options } from 'airport-js'
 
 export interface AirportContextType<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
   airport: Airport<T, G>
   initialOptions: Options<T, G>
   setLocale: (locale: T[number]) => void
-  setTimezone: (timezone: TimezoneType) => void
   subtreeLocale?: T[number]
   setSubtreeLocale?: (nextStrictLocale: T[number]) => void
 }
@@ -47,10 +46,6 @@ export function AirportProvider<T extends ReadonlyArray<string>, G extends LS<T>
     airportInstance.changeLocale(locale)
     forceUpdate()
   }, [airportInstance])
-  const setTimezone = React.useCallback((timezone: TimezoneType) => {
-    airportInstance.changeTimezone(timezone)
-    forceUpdate()
-  }, [airportInstance])
 
   React.useEffect(() => {
     if (!props.locale) return
@@ -59,15 +54,8 @@ export function AirportProvider<T extends ReadonlyArray<string>, G extends LS<T>
     }
   }, [airportInstance, props.locale])
 
-  React.useEffect(() => {
-    if (!props.timezone) return
-    if (airportInstance.getTimezone() !== props.timezone) {
-      setTimezone(props.timezone)
-    }
-  }, [airportInstance, props.timezone])
-
   return (
-    <AirportContext.Provider value={{ airport: airportInstance, initialOptions, setLocale, setTimezone }}>
+    <AirportContext.Provider value={{ airport: airportInstance, initialOptions, setLocale }}>
       {children}
     </AirportContext.Provider>
   )

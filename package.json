@@ -26,13 +26,11 @@
     "examples/*"
   ],
   "scripts": {
-    "postinstall": "yarn update-dayjs-locales && yarn build",
     "build": "tsc -b packages && yarn build:cjs",
     "build:cjs": "lerna exec --stream --parallel --scope airport* -- npx tsc -p tsconfig.cjs.json",
     "watch": "tsc -b -w packages",
     "clean": "lerna run --scope airport* --parallel clean",
-    "test": "lerna exec --scope airport* -- yarn test",
-    "update-dayjs-locales": "node updateDayjsLocales"
+    "test": "lerna exec --scope airport* -- yarn test"
   },
   "private": true
 }
