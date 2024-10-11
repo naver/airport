@@ -75,7 +75,13 @@ export function useAirport<G extends LS<T> = {}, T extends ReadonlyArray<string>
       const nonElementTranslation = airport.t(lsoOrGlobalLSKey, nonElementVariableMap, _forcedLocale)
 
       const translationElements = getTranslationElements(nonElementTranslation, elementVarEntries, 0)
-      return <>{translationElements.map(element => element)}</>
+      return (
+        <>
+          {translationElements.map((element, index) => (
+            <React.Fragment key={index}>{element}</React.Fragment>
+          ))}
+        </>
+      )
     }
 
     return airport.t(lsoOrGlobalLSKey, variableMap, _forcedLocale)

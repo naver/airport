@@ -120,9 +120,10 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
         }
       })
 
-      translated = translated?.replace(new RegExp(`\\{(.[^\\}]*)\\}`, 'gi'), (_match, p1) =>
-        // tslint:disable-next-line
-        eval(
+      translated = translated?.replace(new RegExp(`\\{(.[^\\}]*)\\}`, 'gi'), (match, p1) => {
+        if (!variableMap[p1]) return match
+
+        return eval(
           `${variableEntries
             .map(([key, value]) => {
               let val = value
@@ -132,7 +133,8 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
               return `var ${key} = ${typeof value === 'string' ? `'${val}'` : value};`
             })
             .join('')}${p1};`,
-        ),
+        )
+      },
       )
     } catch (e) {
       console.error(e)
