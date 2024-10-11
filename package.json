@@ -1,6 +1,9 @@
 {
   "name": "airport",
   "devDependencies": {
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.14.6",
     "@types/react": "^18.2.43",
@@ -21,7 +24,9 @@
     "webpack-cli": "^3",
     "webpack-dev-server": "^3.10.3"
   },
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "tsc -b packages && yarn build:cjs",
     "build:cjs": "lerna exec --stream --parallel --scope airport* -- npx tsc -p tsconfig.cjs.json",
