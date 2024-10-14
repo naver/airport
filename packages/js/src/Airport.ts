@@ -92,7 +92,8 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
   t(partialLso: PartialLSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
   t(globalLSKey: keyof G, variableMap?: any, _forcedLocale?: T[number]): string
   t(stringKey: string, variableMap?: any, _forcedLocale?: T[number]): string
-  t(lsoOrGlobalLSKey: LSO<T> | keyof G | string, variableMap?: any, _forcedLocale?: T[number]): string{
+  t(lsoOrGlobalLSKey: LSO<T> | keyof G | string, variableMap?: any, _forcedLocale?: T[number]): string
+  t(lsoOrGlobalLSKey: LSO<T> | keyof G | string, variableMap?: any, _forcedLocale?: T[number]): string {
     let translated = ''
     try {
       const locale = _forcedLocale ?? this.getLocale()
@@ -101,11 +102,11 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
       const variableEntries = Object.entries(variableMap ?? {})
       translated =
         typeof lsoOrGlobalLSKey === 'object'
-          ? lsoOrGlobalLSKey[locale] ?? 
-          lsoOrGlobalLSKey[language as T[number]] ?? 
-          lsoOrGlobalLSKey[this.fallbackLocale] ?? 
-          lsoOrGlobalLSKey[this.fallbackLanguage  as T[number]] ?? 
-          ''
+          ? lsoOrGlobalLSKey[locale] ??
+            lsoOrGlobalLSKey[language as T[number]] ??
+            lsoOrGlobalLSKey[this.fallbackLocale] ??
+            lsoOrGlobalLSKey[this.fallbackLanguage as T[number]] ??
+            ''
           : this.globalLS[lsoOrGlobalLSKey]?.[locale as T[number]] ??
             this.globalLS[lsoOrGlobalLSKey]?.[language as T[number]] ??
             (lsoOrGlobalLSKey as string)
@@ -119,9 +120,10 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
         }
       })
 
-      translated = translated?.replace(new RegExp(`\\{(.[^\\}]*)\\}`, 'gi'), (_match, p1) =>
-        // tslint:disable-next-line
-        eval(
+      translated = translated?.replace(new RegExp(`\\{(.[^\\}]*)\\}`, 'gi'), (match, p1) => {
+        if (!variableMap[p1]) return match
+
+        return eval(
           `${variableEntries
             .map(([key, value]) => {
               let val = value
@@ -131,7 +133,8 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
               return `var ${key} = ${typeof value === 'string' ? `'${val}'` : value};`
             })
             .join('')}${p1};`,
-        ),
+        )
+      },
       )
     } catch (e) {
       console.error(e)
@@ -164,12 +167,18 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
    *
    * @param value - Number to format
    * @param [customFormat] - Currency Format to apply (default: currencyFormat provided in constructor)
-   * @param [baseCurrency] - Currency of `value`. 
-   *                         `baseCurrency` is required if `isFixedCurrency` is `true`. 
-   * @param [isFixedCurrency] - If `isFixedCurrency` is true, `value` will not be exchanged and formatted to current locale's currency. 
+   * @param [baseCurrency] - Currency of `value`.
+   *                         `baseCurrency` is required if `isFixedCurrency` is `true`.
+   * @param [isFixedCurrency] - If `isFixedCurrency` is true, `value` will not be exchanged and formatted to current locale's currency.
    * @param [_forcedLocale] - Locale to use instead of default locale
    */
-  fc = (value: number, customFormat?: string, baseCurrency?: Currency, isFixedCurrency = false, _forcedLocale?: T[number]) => {
+  fc = (
+    value: number,
+    customFormat?: string,
+    baseCurrency?: Currency,
+    isFixedCurrency = false,
+    _forcedLocale?: T[number],
+  ) => {
     if (!this.currencyMap) {
       console.error('You need to set "currency" options for using fc()')
       return
@@ -198,12 +207,17 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
       return this.formatCurrency(value, baseCurrency, customFormat, _forcedLocale)
     }
 
-    const exchangedValue = (value / (startCurrencyER)) * endCurrencyER
+    const exchangedValue = (value / startCurrencyER) * endCurrencyER
 
     return this.formatCurrency(exchangedValue, currentCurrency, customFormat, _forcedLocale)
   }
 
-  private formatCurrency(value: number, targetCurrency: CurrencyType, customFormat?: string, _forcedLocale?: T[number]) {
+  private formatCurrency(
+    value: number,
+    targetCurrency: CurrencyType,
+    customFormat?: string,
+    _forcedLocale?: T[number],
+  ) {
     let format
     if (customFormat) format = customFormat
     else if (this.currencyFormat?.[targetCurrency]) format = this.currencyFormat?.[targetCurrency]
