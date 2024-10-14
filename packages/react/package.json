@@ -1,6 +1,6 @@
 {
   "name": "airport-react",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "jeongseok oh <jeongseok.ooh@navercorp.com>, junsoo choi <junsoo.choi@navercorp.com>",
   "license": "MIT",
   "main": "./build/cjs/index.js",
@@ -15,7 +15,7 @@
     "build": "npx tsc -p tsconfig.cjs.json"
   },
   "dependencies": {
-    "airport-js": "^2.0.0"
+    "airport-js": "^2.1.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
