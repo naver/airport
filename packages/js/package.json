@@ -1,12 +1,12 @@
 {
   "name": "airport-js",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "author": "jeongseok oh <jeongseok.ooh@navercorp.com>, junsoo choi <junsoo.choi@navercorp.com>",
   "license": "MIT",
   "main": "./build/cjs/index.js",
   "module": "./build/cjs/index.js",
   "files": [
-    "build/",
+    "build/**/*",
     "build/cjs/index.d.ts"
   ],
   "scripts": {
