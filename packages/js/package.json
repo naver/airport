@@ -6,7 +6,7 @@
   "main": "./build/cjs/index.js",
   "module": "./build/cjs/index.js",
   "files": [
-    "build/",
+    "build/**/*",
     "build/cjs/index.d.ts"
   ],
   "scripts": {
