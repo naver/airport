@@ -23,8 +23,6 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
   private supportedLocales: T
   private globalLS: G
 
-  private dayjsLocaleMap: LocaleMap<T, string>
-
   private currencyMap: LocaleMap<Partial<T>, CurrencyType>
   private supportedCurrency: CurrencyType[] = []
   private currencyFormatValueKey = 'v'
@@ -68,10 +66,6 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
 
   getRegion = () => {
     return this.region
-  }
-
-  getDayjsLocaleName = () => {
-    return this.dayjsLocaleMap[this.locale]
   }
 
   changeLocale = (nextLocale: T[number]) => {
@@ -121,8 +115,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
       })
 
       translated = translated?.replace(new RegExp(`\\{(.[^\\}]*)\\}`, 'gi'), (match, p1) => {
-        if (!variableMap[p1]) return match
-
+        if (Object.keys(variableMap).every(variableKey => !p1?.includes(variableKey))) return match
         return eval(
           `${variableEntries
             .map(([key, value]) => {
