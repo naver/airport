@@ -121,8 +121,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
       })
 
       translated = translated?.replace(new RegExp(`\\{(.[^\\}]*)\\}`, 'gi'), (match, p1) => {
-        if (!variableMap[p1]) return match
-
+        if (Object.keys(variableMap).every(variableKey => !p1?.includes(variableKey))) return match
         return eval(
           `${variableEntries
             .map(([key, value]) => {

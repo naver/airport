@@ -49,6 +49,18 @@ function TestSection() {
   return <section data-testid="test-section">{t(testLS.sectionTitle, { content: <h1>{t(testLS.headline)}</h1> })}</section>
 }
 
+function TestDiv({ isImp }: { isImp: boolean }) {
+  const { t, airport } = useAirport()
+  const LS = airport.createLS({
+    divTitle: {
+      ko: `영역 {isImp ? '노출' : '미노출'}`,
+      en: `{isImp ? 'expose' : 'unexpose'} area`,
+    },
+  })
+
+  return <div data-testid="test-div" >{t(LS.divTitle, { isImp })}</div>
+}
+
 test('translation test (ko)', async () => {
   customRender(<TestButton />, 'ko')
   await screen.findByRole('button')
@@ -71,4 +83,10 @@ test('element parameter support of translation function', async () => {
   customRender(<TestSection />, 'ko')
   await screen.findByTestId('test-section')
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('헤드라인')
+})
+
+test('ternary operator parameter support of translation function', async () => {
+  customRender(<TestDiv isImp={true} />, 'ko')
+  await screen.findByTestId('test-div')
+  expect(screen.getByTestId('test-div')).toHaveTextContent('영역 노출')
 })
