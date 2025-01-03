@@ -4,10 +4,9 @@
 
 type AtLeastOneRequired<T> = {
   [Key in keyof T]-?: Required<Pick<T, Key>> & Partial<Omit<T, Key>>
-}[keyof T];
+}[keyof T]
 
-
-export interface Options<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
+export interface Options<T extends ReadonlyArray<string>, G extends LS<T> | PartialLS<T> = {}> {
   supportedLocales: T
   locale: T[number]
   fallbackLocale: T[number]
@@ -71,6 +70,11 @@ export interface PartialLS<T extends ReadonlyArray<string>> {
   [LSID: string]: PartialLSO<T>
 }
 
+export type ConditionalLS<
+  isAllRequired extends Boolean = true,
+  L extends ReadonlyArray<string> = ReadonlyArray<string>
+> = isAllRequired extends true ? LS<L> : PartialLS<L>
+
 /**
  * **Language Set Object type consist of translation phrase by locale**
  *
@@ -87,6 +91,11 @@ export type LSO<T extends ReadonlyArray<string>> = LocaleMap<T, string>
  */
 export type PartialLSO<T extends ReadonlyArray<string>> = AtLeastOneRequired<LocaleMap<T, string>>
 
+export type ConditionalLSO<
+  isAllRequired extends Boolean = true,
+  L extends ReadonlyArray<string> = ReadonlyArray<string>
+> = isAllRequired extends true ? LSO<L> : PartialLSO<L>
+
 export type CurrencyType = Currency | string
 export enum Currency {
   KRW = 'KRW',
@@ -94,10 +103,30 @@ export enum Currency {
   USD = 'USD',
 }
 
-declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(lso: LSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
-declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(partialLso: PartialLSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
-declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(globalLSKey: keyof G, variableMap?: any, _forcedLocale?: T[number]): string
-declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(stringKey: string, variableMap?: any, _forcedLocale?: T[number]): string
-declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(lsoOrGlobalLSKey: LSO<T> | keyof G | string, variableMap?: any, _forcedLocale?: T[number]): string
+declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(
+  lso: LSO<T>,
+  variableMap?: any,
+  _forcedLocale?: T[number],
+): string
+declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(
+  partialLso: PartialLSO<T>,
+  variableMap?: any,
+  _forcedLocale?: T[number],
+): string
+declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(
+  globalLSKey: keyof G,
+  variableMap?: any,
+  _forcedLocale?: T[number],
+): string
+declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(
+  stringKey: string,
+  variableMap?: any,
+  _forcedLocale?: T[number],
+): string
+declare function t<T extends ReadonlyArray<string>, G extends LS<T> = {}>(
+  lsoOrGlobalLSKey: LSO<T> | keyof G | string,
+  variableMap?: any,
+  _forcedLocale?: T[number],
+): string
 
 export type AirportT = typeof t

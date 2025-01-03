@@ -2,7 +2,20 @@
 // Copyright 2024-present NAVER Corp.
 // MIT License
 
-import { Currency, CurrencyMap, CurrencyType, ImprovedNumberFormatOptions, LocaleMap, LS, LSO, Options, PartialLSO } from './types'
+import {
+  Currency,
+  CurrencyMap,
+  CurrencyType,
+  ImprovedNumberFormatOptions,
+  LocaleMap,
+  LS,
+  LSO,
+  Options,
+  PartialLS,
+  PartialLSO,
+  ConditionalLS,
+  ConditionalLSO,
+} from './types'
 import { createLSFactory, deepEqual, roundOperation } from './utils'
 
 /**
@@ -11,19 +24,24 @@ import { createLSFactory, deepEqual, roundOperation } from './utils'
  * @typeParam `T` - Array of supported locales
  * @typeParam `G` - Type of global language set
  */
-export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
-  private locale: T[number]
+export class Airport<
+  isAllRequired extends Boolean = true,
+  SupportedLangs extends ReadonlyArray<string> = [],
+  GLSType extends ConditionalLS<isAllRequired, SupportedLangs> = ConditionalLS<isAllRequired, SupportedLangs>,
+  LSOType extends ConditionalLSO<isAllRequired, SupportedLangs> = ConditionalLSO<isAllRequired, SupportedLangs>
+> {
+  private locale: SupportedLangs[number]
   private language: string
   private region: string = null
 
-  private fallbackLocale: T[number]
+  private fallbackLocale: SupportedLangs[number]
   private fallbackLanguage: string
   private fallbackRegion: string
 
-  private supportedLocales: T
-  private globalLS: G
+  private supportedLocales: SupportedLangs
+  private globalLS: GLSType
 
-  private currencyMap: LocaleMap<Partial<T>, CurrencyType>
+  private currencyMap: LocaleMap<Partial<SupportedLangs>, CurrencyType>
   private supportedCurrency: CurrencyType[] = []
   private currencyFormatValueKey = 'v'
   private currencyFormat: CurrencyMap<string>
@@ -36,9 +54,9 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
   private cachedCurrencyFormat: Intl.NumberFormat
   private cachedCurrencyFormatOptions: Intl.NumberFormatOptions
 
-  constructor(private options: Options<T, G>) {
+  constructor(private options: Options<SupportedLangs, GLSType>) {
     this.supportedLocales = options.supportedLocales
-    this.globalLS = (options.globalLS ?? {}) as G
+    this.globalLS = (options.globalLS ?? {}) as GLSType
 
     this.setupFallbackLocale(options.fallbackLocale)
     this.setupLocale(options.locale)
@@ -50,7 +68,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     this.cachedCurrencyFormat = new Intl.NumberFormat(options.locale, this.cachedCurrencyFormatOptions)
   }
 
-  createLS = createLSFactory<T>()
+  createLS = createLSFactory<SupportedLangs>()
 
   getOptions = () => {
     return { ...this.options }
@@ -68,7 +86,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     return this.region
   }
 
-  changeLocale = (nextLocale: T[number]) => {
+  changeLocale = (nextLocale: SupportedLangs[number]) => {
     this.setupLocale(nextLocale)
     this.cachedNumberFormat = new Intl.NumberFormat(nextLocale, this.cachedNumberFormatOptions)
     this.cachedCurrencyFormat = new Intl.NumberFormat(nextLocale, this.cachedCurrencyFormatOptions)
@@ -82,12 +100,19 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
    * @param [variableMap] - Object that includes variable value used in LSO
    * @param [_forcedLocale] - Locale to use instead of default locale
    */
-  t(lso: LSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
-  t(partialLso: PartialLSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
-  t(globalLSKey: keyof G, variableMap?: any, _forcedLocale?: T[number]): string
-  t(stringKey: string, variableMap?: any, _forcedLocale?: T[number]): string
-  t(lsoOrGlobalLSKey: LSO<T> | keyof G | string, variableMap?: any, _forcedLocale?: T[number]): string
-  t(lsoOrGlobalLSKey: LSO<T> | keyof G | string, variableMap?: any, _forcedLocale?: T[number]): string {
+  t(lso: LSOType, variableMap?: any, _forcedLocale?: SupportedLangs[number]): string
+  t(globalLSKey: keyof GLSType, variableMap?: any, _forcedLocale?: SupportedLangs[number]): string
+  t(stringKey: string, variableMap?: any, _forcedLocale?: SupportedLangs[number]): string
+  t(
+    lsoOrGlobalLSKey: LSOType | keyof GLSType | string,
+    variableMap?: any,
+    _forcedLocale?: SupportedLangs[number],
+  ): string
+  t(
+    lsoOrGlobalLSKey: LSOType | keyof GLSType | string,
+    variableMap?: any,
+    _forcedLocale?: SupportedLangs[number],
+  ): string {
     let translated = ''
     try {
       const locale = _forcedLocale ?? this.getLocale()
@@ -97,12 +122,12 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
       translated =
         typeof lsoOrGlobalLSKey === 'object'
           ? lsoOrGlobalLSKey[locale] ??
-            lsoOrGlobalLSKey[language as T[number]] ??
+            lsoOrGlobalLSKey[language as SupportedLangs[number]] ??
             lsoOrGlobalLSKey[this.fallbackLocale] ??
-            lsoOrGlobalLSKey[this.fallbackLanguage as T[number]] ??
+            lsoOrGlobalLSKey[this.fallbackLanguage as SupportedLangs[number]] ??
             ''
-          : this.globalLS[lsoOrGlobalLSKey]?.[locale as T[number]] ??
-            this.globalLS[lsoOrGlobalLSKey]?.[language as T[number]] ??
+          : this.globalLS[lsoOrGlobalLSKey]?.[locale as SupportedLangs[number]] ??
+            this.globalLS[lsoOrGlobalLSKey]?.[language as SupportedLangs[number]] ??
             (lsoOrGlobalLSKey as string)
 
       // Insert value
@@ -127,8 +152,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
             })
             .join('')}${p1};`,
         )
-      },
-      )
+      })
     } catch (e) {
       console.error(e)
     } finally {
@@ -143,7 +167,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
    * @param [options] - Formatting option to apply. Follows Intl.NumberFormatOptions format
    * @param [_forcedLocale] - Locale to use instead of default locale
    */
-  fn = (value: number, options?: ImprovedNumberFormatOptions, _forcedLocale?: T[number]) => {
+  fn = (value: number, options?: ImprovedNumberFormatOptions, _forcedLocale?: SupportedLangs[number]) => {
     const numberFormat = this.getNumberFormatInstance(options, _forcedLocale)
 
     if (options?.roundingMode) {
@@ -170,7 +194,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     customFormat?: string,
     baseCurrency?: Currency,
     isFixedCurrency = false,
-    _forcedLocale?: T[number],
+    _forcedLocale?: SupportedLangs[number],
   ) => {
     if (!this.currencyMap) {
       console.error('You need to set "currency" options for using fc()')
@@ -209,7 +233,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     value: number,
     targetCurrency: CurrencyType,
     customFormat?: string,
-    _forcedLocale?: T[number],
+    _forcedLocale?: SupportedLangs[number],
   ) {
     let format
     if (customFormat) format = customFormat
@@ -220,7 +244,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
       : this.getCurrencyFormatInstance({ style: 'currency', currency: targetCurrency }, _forcedLocale).format(value)
   }
 
-  private setupLocale(locale: T[number]) {
+  private setupLocale(locale: SupportedLangs[number]) {
     if (!locale) {
       console.error('There is no input locale.')
       return
@@ -236,7 +260,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     this.applyLocale(locale, language, region)
   }
 
-  private setupFallbackLocale(fallbackLocale: T[number]) {
+  private setupFallbackLocale(fallbackLocale: SupportedLangs[number]) {
     if (!this.isSupportedLocale(fallbackLocale)) {
       throw new Error('options.fallbackLocale must be value in the options.supportedLocales')
     }
@@ -248,14 +272,14 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     this.fallbackRegion = region
   }
 
-  private applyLocale(locale: T[number], language: string, region: string) {
+  private applyLocale(locale: SupportedLangs[number], language: string, region: string) {
     this.locale = locale
     this.language = language
     this.region = region
   }
 
   // Function to renew and return cached instance of NumberFormat.
-  private getNumberFormatInstance(options?: ImprovedNumberFormatOptions, _forcedLocale?: T[number]) {
+  private getNumberFormatInstance(options?: ImprovedNumberFormatOptions, _forcedLocale?: SupportedLangs[number]) {
     if (_forcedLocale) return new Intl.NumberFormat(_forcedLocale, options)
     if (!deepEqual(this.cachedNumberFormatOptions, options)) {
       this.cachedNumberFormatOptions = options
@@ -266,7 +290,7 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
   }
 
   // Function to renew and return cached instance of CurrencyNumberFormat.
-  private getCurrencyFormatInstance(options?: ImprovedNumberFormatOptions, _forcedLocale?: T[number]) {
+  private getCurrencyFormatInstance(options?: ImprovedNumberFormatOptions, _forcedLocale?: SupportedLangs[number]) {
     if (_forcedLocale) return new Intl.NumberFormat(_forcedLocale, options)
     if (!deepEqual(this.cachedCurrencyFormatOptions, options)) {
       this.cachedCurrencyFormatOptions = options
@@ -280,24 +304,24 @@ export class Airport<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
     this.applyLocale(this.fallbackLocale, this.fallbackLanguage, this.fallbackRegion)
   }
 
-  private splitLocale(locale: T[number]) {
+  private splitLocale(locale: SupportedLangs[number]) {
     return locale.split('-')
   }
 
-  private isSupportedLocale(locale: T[number], language?: string) {
+  private isSupportedLocale(locale: SupportedLangs[number], language?: string) {
     return this.supportedLocales.includes(locale) || (language && this.supportedLocales.includes(language))
   }
 
-  private setupOptions(options: Options<T, G>) {
+  private setupOptions(options: Options<SupportedLangs, GLSType>) {
     this.setupCurrency(options)
   }
 
-  private setupCurrency(options: Options<T, G>) {
+  private setupCurrency(options: Options<SupportedLangs, GLSType>) {
     if (this.currencyMap || !options.currency) return
 
     this.currencyMap = {
       ...options.currency,
-    } as LocaleMap<Partial<T>, Currency>
+    } as LocaleMap<Partial<SupportedLangs>, Currency>
 
     this.supportedCurrency = [...Object.values(this.currencyMap)] as Currency[]
 
