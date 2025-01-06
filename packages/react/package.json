@@ -1,21 +1,26 @@
 {
   "name": "airport-react",
-  "version": "2.1.4",
+  "version": "2.2.0",
   "author": "jeongseok oh <jeongseok.ooh@navercorp.com>, junsoo choi <junsoo.choi@navercorp.com>",
   "license": "MIT",
-  "main": "./build/cjs/index.js",
-  "module": "./build/cjs/index.js",
+  "types": "./build/index.d.ts",
+  "main": "./build/index.cjs.js",
+  "module": "./build/index.esm.js",
   "files": [
     "build/**/*",
-    "build/cjs/index.d.ts"
+    "build/index.d.ts"
   ],
+  "exports": {
+    "require": "./build/index.cjs.js",
+    "import": "./build/index.esm.js"
+  },
   "scripts": {
     "clean": "rimraf build .cache tsconfig.tsbuildinfo",
     "test": "jest",
-    "build": "npx tsc -p tsconfig.cjs.json"
+    "build": "yarn clean && npx rollup -c"
   },
   "dependencies": {
-    "airport-js": "^2.1.4"
+    "airport-js": "^2.2.0"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",

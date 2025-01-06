@@ -3,7 +3,11 @@
   "compilerOptions": {
     "outDir": "build",
     "rootDir": "src",
-    "typeRoots": ["../../node_modules/@types", "./src"]
+    "typeRoots": ["../../node_modules/@types", "./src"],
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "build/dts",
+    "emitDeclarationOnly": true,
   },
   "include": [
     "src/**/*"

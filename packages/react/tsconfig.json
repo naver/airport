@@ -3,7 +3,11 @@
   "compilerOptions": {
     "outDir": "build",
     "rootDir": "src",
-    "jsx": "react"
+    "jsx": "react",
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "build/dts",
+    "emitDeclarationOnly": true,
   },
   "references": [
     { "path": "../js" },
