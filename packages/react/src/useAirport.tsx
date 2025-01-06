@@ -2,9 +2,8 @@
 // Copyright 2024-present NAVER Corp.
 // MIT License
 
-
 import * as React from 'react'
-import { LS, LSO, PartialLSO } from 'airport-js'
+import { LS, LSO, PartialLSO, PartialLS } from 'airport-js'
 
 import { AirportContext, AirportContextType } from './AirportProvider'
 
@@ -14,8 +13,8 @@ import { AirportContext, AirportContextType } from './AirportProvider'
  * @typeParam `T` - Array of supported locales
  * @typeParam `G` - Type of global language set
  */
-export function useAirport<G extends LS<T> = {}, T extends ReadonlyArray<string> = any>() {
-  const { airport, initialOptions, setLocale } = React.useContext<AirportContextType<T, G>>(AirportContext as any)
+export function useAirport<L extends ReadonlyArray<string>, G extends LS<L> | PartialLS<L>>() {
+  const { airport, initialOptions, setLocale } = React.useContext<AirportContextType<L, G>>(AirportContext as any)
   const [state, setState] = React.useState(getNewAirportState())
 
   const { fn, fc } = airport
@@ -57,14 +56,14 @@ export function useAirport<G extends LS<T> = {}, T extends ReadonlyArray<string>
     return result
   }
 
-  function t(lso: LSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
-  function t(partialLso: PartialLSO<T>, variableMap?: any, _forcedLocale?: T[number]): string
-  function t(globalLSKey: keyof G, variableMap?: any, _forcedLocale?: T[number]): string
-  function t(stringKey: string, variableMap?: any, _forcedLocale?: T[number]): string
+  function t(lso: LSO<L>, variableMap?: any, _forcedLocale?: L[number]): string
+  function t(partialLso: PartialLSO<L>, variableMap?: any, _forcedLocale?: L[number]): string
+  function t(globalLSKey: keyof G, variableMap?: any, _forcedLocale?: L[number]): string
+  function t(stringKey: string, variableMap?: any, _forcedLocale?: L[number]): string
   function t(
-    lsoOrGlobalLSKey: LSO<T> | keyof G | string,
+    lsoOrGlobalLSKey: LSO<L> | PartialLSO<L> | keyof G | string,
     variableMap?: any,
-    _forcedLocale?: T[number],
+    _forcedLocale?: L[number],
   ): string | React.ReactNode {
     const elementVarEntries = Object.entries(variableMap ?? {}).filter(([_, value]) => React.isValidElement(value))
 
@@ -72,7 +71,7 @@ export function useAirport<G extends LS<T> = {}, T extends ReadonlyArray<string>
       const nonElementVariableMap = Object.fromEntries(
         Object.entries(variableMap ?? {}).filter(([_, value]) => !React.isValidElement(value)),
       )
-      const nonElementTranslation = airport.t(lsoOrGlobalLSKey, nonElementVariableMap, _forcedLocale)
+      const nonElementTranslation = airport.t(lsoOrGlobalLSKey as any, nonElementVariableMap, _forcedLocale)
 
       const translationElements = getTranslationElements(nonElementTranslation, elementVarEntries, 0)
       return (
@@ -84,7 +83,7 @@ export function useAirport<G extends LS<T> = {}, T extends ReadonlyArray<string>
       )
     }
 
-    return airport.t(lsoOrGlobalLSKey, variableMap, _forcedLocale)
+    return airport.t(lsoOrGlobalLSKey as any, variableMap, _forcedLocale)
   }
 
   return {

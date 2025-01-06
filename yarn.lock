@@ -1695,7 +1695,7 @@
     "@docusaurus/theme-search-algolia" "3.1.1"
     "@docusaurus/types" "3.1.1"
 
-"@docusaurus/react-loadable@5.5.2", "react-loadable@npm:@docusaurus/react-loadable@5.5.2":
+"@docusaurus/react-loadable@5.5.2":
   version "5.5.2"
   resolved "https://registry.yarnpkg.com/@docusaurus/react-loadable/-/react-loadable-5.5.2.tgz#81aae0db81ecafbdaee3651f12804580868fa6ce"
   integrity sha512-A3dYjdBGuy0IGT+wyLIGIKLRE+sAk1iNk0f1HjNDysO7u8lhL4N3VEm+FAubmJbAztn94F7MxBTPmnixbiyFdQ==
@@ -3629,7 +3629,7 @@
 
 "@types/react-dom@^18.2.17":
   version "18.2.17"
-  resolved "https://registry.navercorp.com:443/api/npm/npm-naver/@types/react-dom/-/react-dom-18.2.17.tgz#375c55fab4ae671bd98448dcfa153268d01d6f64"
+  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-18.2.17.tgz#375c55fab4ae671bd98448dcfa153268d01d6f64"
   integrity sha1-N1xV+rSuZxvZhEjc+hUyaNAdb2Q=
   dependencies:
     "@types/react" "*"
@@ -3662,7 +3662,7 @@
 
 "@types/react@*", "@types/react@^18.2.43":
   version "18.2.43"
-  resolved "https://registry.navercorp.com:443/api/npm/npm-naver/@types/react/-/react-18.2.43.tgz#c58e5abe241e6f71f60ce30e2a9aceb9d3a2a374"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.43.tgz#c58e5abe241e6f71f60ce30e2a9aceb9d3a2a374"
   integrity sha1-xY5aviQeb3H2DOMOKprOudOio3Q=
   dependencies:
     "@types/prop-types" "*"
@@ -3683,7 +3683,7 @@
 
 "@types/scheduler@*":
   version "0.16.8"
-  resolved "https://registry.navercorp.com:443/api/npm/npm-naver/@types/scheduler/-/scheduler-0.16.8.tgz#ce5ace04cfeabe7ef87c0091e50752e36707deff"
+  resolved "https://registry.yarnpkg.com/@types/scheduler/-/scheduler-0.16.8.tgz#ce5ace04cfeabe7ef87c0091e50752e36707deff"
   integrity sha1-zlrOBM/qvn74fACR5QdS42cH3v8=
 
 "@types/send@*":
@@ -4201,6 +4201,10 @@ aggregate-error@^3.0.0:
   dependencies:
     clean-stack "^2.0.0"
     indent-string "^4.0.0"
+
+"airport-js@file:./packages/react/airport-js-v2.1.4.tgz":
+  version "2.1.4"
+  resolved "file:./packages/react/airport-js-v2.1.4.tgz#00b08469ec0399b968ea0c217b99dd2a23e15d23"
 
 ajv-errors@^1.0.0:
   version "1.0.1"
@@ -13647,6 +13651,14 @@ react-loadable-ssr-addon-v5-slorber@^1.0.1:
   dependencies:
     "@babel/runtime" "^7.10.3"
 
+"react-loadable@npm:@docusaurus/react-loadable@5.5.2":
+  version "5.5.2"
+  resolved "https://registry.yarnpkg.com/@docusaurus/react-loadable/-/react-loadable-5.5.2.tgz#81aae0db81ecafbdaee3651f12804580868fa6ce"
+  integrity sha512-A3dYjdBGuy0IGT+wyLIGIKLRE+sAk1iNk0f1HjNDysO7u8lhL4N3VEm+FAubmJbAztn94F7MxBTPmnixbiyFdQ==
+  dependencies:
+    "@types/react" "*"
+    prop-types "^15.6.2"
+
 react-router-config@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/react-router-config/-/react-router-config-5.1.1.tgz#0f4263d1a80c6b2dc7b9c1902c9526478194a988"
@@ -14379,7 +14391,7 @@ saxes@^5.0.0:
 
 scheduler@^0.23.0:
   version "0.23.0"
-  resolved "https://registry.navercorp.com:443/api/npm/npm-naver/scheduler/-/scheduler-0.23.0.tgz#ba8041afc3d30eb206a487b6b384002e4e61fdfe"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.23.0.tgz#ba8041afc3d30eb206a487b6b384002e4e61fdfe"
   integrity sha1-uoBBr8PTDrIGpIe2s4QALk5h/f4=
   dependencies:
     loose-envify "^1.1.0"

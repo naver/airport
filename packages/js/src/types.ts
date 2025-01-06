@@ -6,13 +6,13 @@ type AtLeastOneRequired<T> = {
   [Key in keyof T]-?: Required<Pick<T, Key>> & Partial<Omit<T, Key>>
 }[keyof T]
 
-export interface Options<T extends ReadonlyArray<string>, G extends LS<T> | PartialLS<T> = {}> {
-  supportedLocales: T
-  locale: T[number]
-  fallbackLocale: T[number]
+export interface Options<L extends ReadonlyArray<string>, G extends LS<L> | PartialLS<L>> {
+  supportedLocales: L
+  locale: L[number]
+  fallbackLocale: L[number]
   name?: string
   globalLS?: G
-  currency?: LocaleMap<T, CurrencyType>
+  currency?: LocaleMap<L, CurrencyType>
   currencyFormatValueKey?: string
   currencyFormat?: CurrencyMap<string>
   keyCurrency?: CurrencyType
@@ -70,11 +70,6 @@ export interface PartialLS<T extends ReadonlyArray<string>> {
   [LSID: string]: PartialLSO<T>
 }
 
-export type ConditionalLS<
-  isAllRequired extends Boolean = true,
-  L extends ReadonlyArray<string> = ReadonlyArray<string>
-> = isAllRequired extends true ? LS<L> : PartialLS<L>
-
 /**
  * **Language Set Object type consist of translation phrase by locale**
  *
@@ -90,11 +85,6 @@ export type LSO<T extends ReadonlyArray<string>> = LocaleMap<T, string>
  * @typeParam `T` - Array of supported locales
  */
 export type PartialLSO<T extends ReadonlyArray<string>> = AtLeastOneRequired<LocaleMap<T, string>>
-
-export type ConditionalLSO<
-  isAllRequired extends Boolean = true,
-  L extends ReadonlyArray<string> = ReadonlyArray<string>
-> = isAllRequired extends true ? LSO<L> : PartialLSO<L>
 
 export type CurrencyType = Currency | string
 export enum Currency {

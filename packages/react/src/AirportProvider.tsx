@@ -4,21 +4,22 @@
 
 import * as React from 'react'
 
-import { Airport, LS, Options } from 'airport-js'
+import { Airport, LS, Options, PartialLS } from 'airport-js'
 
-export interface AirportContextType<T extends ReadonlyArray<string>, G extends LS<T> = {}> {
-  airport: Airport<T, G>
-  initialOptions: Options<T, G>
-  setLocale: (locale: T[number]) => void
-  subtreeLocale?: T[number]
-  setSubtreeLocale?: (nextStrictLocale: T[number]) => void
+export interface AirportContextType<L extends ReadonlyArray<string>, G extends LS<L> | PartialLS<L>> {
+  airport: Airport<L, G>
+  initialOptions: Options<L, G>
+  setLocale: (locale: L[number]) => void
+  subtreeLocale?: L[number]
+  setSubtreeLocale?: (nextStrictLocale: L[number]) => void
 }
 
-export const AirportContext = (<T extends ReadonlyArray<string>, G extends LS<T> = {}>() => React.createContext<AirportContextType<T, G>>(null))();
+export const AirportContext = (<L extends ReadonlyArray<string>, G extends LS<L> = {}>() =>
+  React.createContext<AirportContextType<L, G>>(null))()
 
-export interface Props<T extends ReadonlyArray<string>, G extends LS<T> = {}> extends Partial<Options<T, G>> {
+export interface Props<L extends ReadonlyArray<string>, G extends LS<L> = {}> extends Partial<Options<L, G>> {
   children: React.ReactNode
-  airport?: Airport<T, G>
+  airport?: Airport<L, G>
 }
 
 /**
@@ -26,26 +27,36 @@ export interface Props<T extends ReadonlyArray<string>, G extends LS<T> = {}> ex
  *
  * **Airport provider needs an airport instance to be used in the context**
  */
-export function AirportProvider<T extends ReadonlyArray<string>, G extends LS<T> = {}>({ children, airport, ...props }: Props<T, G>) {
+export function AirportProvider<L extends ReadonlyArray<string>, G extends LS<L> = {}>({
+  children,
+  airport,
+  ...props
+}: Props<L, G>) {
   const airportInstance = React.useMemo(() => {
     if (airport) {
       return airport
     }
 
-    return new Airport<T, G>(props as Options<T, G>)
+    return new Airport<L, G>(props as Options<L, G>)
   }, [airport])
   const initialOptions = React.useMemo(() => {
     if (airport) {
       return Object.freeze(airport.getOptions())
     }
 
-    return Object.freeze(props as Options<T, G>)
+    return Object.freeze(props as Options<L, G>)
   }, [airport])
-  const [_, forceUpdate] = React.useReducer(x => x + 1, () => 0)
-  const setLocale = React.useCallback((locale: T[number]) => {
-    airportInstance.changeLocale(locale)
-    forceUpdate()
-  }, [airportInstance])
+  const [_, forceUpdate] = React.useReducer(
+    x => x + 1,
+    () => 0,
+  )
+  const setLocale = React.useCallback(
+    (locale: L[number]) => {
+      airportInstance.changeLocale(locale)
+      forceUpdate()
+    },
+    [airportInstance],
+  )
 
   React.useEffect(() => {
     if (!props.locale) return
