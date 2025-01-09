@@ -1,0 +1,30 @@
+{
+  "name": "airport-clean-ls-loader",
+  "version": "1.0.2",
+  "author": "junsoo.choi@navercorp.com",
+  "description": "webpack loader to select LS langagues to include in build phase.",
+  "license": "MIT",
+  "main": "index.js",
+  "module": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "peerDependencies": {
+    "webpack": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.97.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naver/airport.git"
+  },
+  "keywords": [
+    "internationalization",
+    "i18n"
+  ],
+  "bugs": {
+    "url": "https://github.com/naver/airport/issues"
+  },
+  "homepage": "https://naver.github.io/airport"
+}
