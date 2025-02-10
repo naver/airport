@@ -14,7 +14,11 @@ import { AirportContext, AirportContextType } from './AirportProvider'
  * @typeParam `G` - Type of global language set
  */
 export function useAirport<L extends ReadonlyArray<string>, G extends LS<L> | PartialLS<L>>() {
-  const { airport, initialOptions, setLocale } = React.useContext<AirportContextType<L, G>>(AirportContext as any)
+  const airportContext = React.useContext<AirportContextType<L, G>>(AirportContext as any)
+  if (!airportContext) {
+    throw new Error('useAirport must be used within a AirportProvider')
+  }
+  const { airport, initialOptions, setLocale } = airportContext
   const [state, setState] = React.useState(getNewAirportState())
 
   const { fn, fc } = airport

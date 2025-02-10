@@ -14,7 +14,7 @@ export interface AirportContextType<L extends ReadonlyArray<string>, G extends L
   setSubtreeLocale?: (nextStrictLocale: L[number]) => void
 }
 
-export const AirportContext = (<L extends ReadonlyArray<string>, G extends LS<L> = {}>() =>
+export const AirportContext = (<L extends ReadonlyArray<string>, G extends LS<L> | PartialLS<L> = {}>() =>
   React.createContext<AirportContextType<L, G>>(null))()
 
 export interface Props<L extends ReadonlyArray<string>, G extends LS<L> = {}> extends Partial<Options<L, G>> {
@@ -27,7 +27,7 @@ export interface Props<L extends ReadonlyArray<string>, G extends LS<L> = {}> ex
  *
  * **Airport provider needs an airport instance to be used in the context**
  */
-export function AirportProvider<L extends ReadonlyArray<string>, G extends LS<L> = {}>({
+export function AirportProvider<L extends ReadonlyArray<string>, G extends LS<L> | PartialLS<L> = {}>({
   children,
   airport,
   ...props
