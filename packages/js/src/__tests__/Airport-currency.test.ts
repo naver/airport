@@ -8,7 +8,7 @@ import { Currency } from '../types'
 describe('Airport currency functions test', () => {
   const supportedLocales = ['ko-KR', 'en-US', 'ja-JP'] as const
 
-  let airport: Airport<typeof supportedLocales>
+  let airport: Airport<typeof supportedLocales, {}>
   beforeEach(() => {
     airport = new Airport({
       supportedLocales,
@@ -43,7 +43,7 @@ describe('Airport currency functions test', () => {
 
     const value = 100000
 
-    const enUsFormatted = airport.fc(value, null, null, null, 'en-US')
+    const enUsFormatted = airport.fc(value, undefined, undefined, undefined, 'en-US')
     const enUsUsdIntlFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value)
 
     expect(enUsFormatted).toBe(enUsUsdIntlFormatted)
@@ -165,7 +165,7 @@ describe('Airport currency functions test', () => {
 
     const value = 100000
 
-    const krwPrice = localAirport.fc(value, null, Currency.JPY)
+    const krwPrice = localAirport.fc(value, undefined, Currency.JPY)
     const exchangedValue = (value / (usdToJpy / usd)) * (usdToKrw / usd)
     const koKrKrwIntlFormatted = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(exchangedValue)
 
@@ -193,7 +193,7 @@ describe('Airport currency functions test', () => {
 
     const value = 100000
 
-    const krwPrice = localAirport.fc(value, null, Currency.JPY)
+    const krwPrice = localAirport.fc(value, undefined, Currency.JPY)
     const koKrKrwIntlFormatted = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'JPY' }).format(value)
 
     expect(krwPrice).toBe(koKrKrwIntlFormatted)
@@ -221,7 +221,7 @@ describe('Airport currency functions test', () => {
 
     const value = 100000
 
-    const krwPrice = localAirport.fc(value, null, Currency.JPY)
+    const krwPrice = localAirport.fc(value, undefined, Currency.JPY)
     const exchangedValue = (value / (krwToJyp / krw)) * (krw / krw)
     const koKrKrwIntlFormatted = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(exchangedValue)
 
@@ -247,14 +247,14 @@ describe('Airport currency functions test', () => {
   test('airport.fc() can format isFixedCurrency with baseCurrency', () => {
     const value = 100000
 
-    const koKrIntlBasedFormatted = airport.fc(value, null, Currency.KRW, true)
+    const koKrIntlBasedFormatted = airport.fc(value, undefined, Currency.KRW, true)
     const koKrKrwIntlFormatted = new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(value)
 
     expect(koKrIntlBasedFormatted).toBe(koKrKrwIntlFormatted)
 
     airport.changeLocale('en-US')
 
-    const enUsIntlBasedFormatted = airport.fc(value, null, Currency.KRW, true)
+    const enUsIntlBasedFormatted = airport.fc(value, undefined, Currency.KRW, true)
     const enUsKrwIntlFormatted = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'KRW' }).format(value)
     expect(enUsIntlBasedFormatted).toBe(enUsKrwIntlFormatted)
 
@@ -272,13 +272,13 @@ describe('Airport currency functions test', () => {
       },
     })
 
-    const koKrLsBasedFormatted = formattedCurrencyAirport.fc(value, null, Currency.KRW, true)
+    const koKrLsBasedFormatted = formattedCurrencyAirport.fc(value, undefined, Currency.KRW, true)
     const koKrIntlNumberFormatted = new Intl.NumberFormat('ko-KR').format(value)
     expect(koKrLsBasedFormatted).toBe(`${koKrIntlNumberFormatted}원입니다.`)
 
     formattedCurrencyAirport.changeLocale('en-US')
 
-    const enUsLsBasedFormatted = formattedCurrencyAirport.fc(value, null, Currency.KRW, true)
+    const enUsLsBasedFormatted = formattedCurrencyAirport.fc(value, undefined, Currency.KRW, true)
     const enUsIntlNumberFormatted = new Intl.NumberFormat('en-US').format(value)
     expect(enUsLsBasedFormatted).toBe(`${enUsIntlNumberFormatted}원입니다.`)
   })

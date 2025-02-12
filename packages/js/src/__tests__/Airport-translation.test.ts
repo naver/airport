@@ -134,7 +134,7 @@ describe('Airport translation functions test', () => {
       locale: 'ja',
       fallbackLocale: 'ko',
     })
-    
+
     const LS = createPartialLS({
       onlyKoEn: {
         ko: 'korean',
@@ -152,7 +152,7 @@ describe('Airport translation functions test', () => {
       locale: 'ja',
       fallbackLocale: 'ko',
     })
-    
+
     const LS = createPartialLS({
       onlyEn: {
         en: 'english',
@@ -162,15 +162,31 @@ describe('Airport translation functions test', () => {
     expect(airport.t(LS.onlyEn)).toBe('')
   })
 
+  test('airport should not cause any errors related to curly braces', () => {
+    const airport = new Airport({
+      supportedLocales,
+      globalLS,
+      locale: 'ja',
+      fallbackLocale: 'ko',
+    })
 
-  
+    const LS = createPartialLS({
+      onlyKo: {
+        ko: `형식: {"test": {"title": "", "alt": ""}, ...}`,
+      },
+    })
+
+    expect(airport.t(LS.onlyKo)).toBe('형식: {"test": {"title": "", "alt": ""}, ...}')
+  })
+
+
   test('Airport supports partialLS', () => {
     const partialLS = createPartialLS({
       koTest: { ko: '부분 언어 집합' },
       enTest: { en: 'This is english LS'}
     })
-    // expect(airport.t(partialLS.koTest)).toBe('부분 언어 집합')
-    // expect(airport.t(partialLS.enTest)).toBe(undefined)
-    // TODO: Airport partialLS 기능 아직 미완성 상태. 완성 시 테스트 케이스 완성 예정
+
+    expect(airport.t(partialLS.koTest)).toBe('부분 언어 집합')
+    expect(airport.t(partialLS.enTest)).toBe("")
   })
 })
