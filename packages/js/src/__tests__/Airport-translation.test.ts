@@ -171,12 +171,12 @@ describe('Airport translation functions test', () => {
     })
 
     const LS = createPartialLS({
-      onlyEn: {
+      onlyKo: {
         ko: `형식: {"test": {"title": "", "alt": ""}, ...}`,
       },
     })
 
-    expect(airport.t(LS.onlyEn)).toBe('형식: {"test": {"title": "", "alt": ""}, ...}')
+    expect(airport.t(LS.onlyKo)).toBe('형식: {"test": {"title": "", "alt": ""}, ...}')
   })
 
 
