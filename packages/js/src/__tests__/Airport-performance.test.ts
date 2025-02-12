@@ -8,7 +8,7 @@ import { Currency } from '../types'
 describe('Airport performance test', () => {
   const supportedLocales = ['ko-KR', 'en-US', 'ja-JP'] as const
 
-  let airport: Airport<typeof supportedLocales>
+  let airport: Airport<typeof supportedLocales, {}>
   beforeEach(() => {
     airport = new Airport({
       supportedLocales,
