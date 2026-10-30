@@ -22,7 +22,7 @@ const MASK_BASE = 0xe000
 const maskTemplateChars = (text: string) =>
   text.replace(/[{}'"`\\]/g, char => String.fromCharCode(MASK_BASE + TEMPLATE_CHARS.indexOf(char)))
 const unmaskTemplateChars = (text: string) =>
-  text.replace(/[-]/g, char => TEMPLATE_CHARS[char.charCodeAt(0) - MASK_BASE])
+  text.replace(/[\uE000-\uE005]/g, char => TEMPLATE_CHARS[char.charCodeAt(0) - MASK_BASE])
 
 /**
  * **Create Airport instance**
