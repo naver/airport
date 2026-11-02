@@ -84,4 +84,22 @@ describe('Airport.t injection', () => {
       expect(t({ ko: '[{name}]' }, { name: "$&$'" })).toBe("[$&$']")
     })
   })
+
+  describe('Private Use Area characters are kept as they are', () => {
+    // U+E000~U+E005, used by some icon fonts and legacy carrier emoji
+    const pua = String.fromCharCode(0xe000, 0xe001, 0xe002, 0xe003, 0xe004, 0xe005)
+
+    it('keeps them in a language set without values', () => {
+      expect(t({ ko: `${pua} 아이콘` })).toBe(`${pua} 아이콘`)
+    })
+
+    it('keeps them in a language set with values', () => {
+      expect(t({ ko: `${pua} {name}` }, { name: '홍길동' })).toBe(`${pua} 홍길동`)
+    })
+
+    it('keeps them in a value, also inside an expression', () => {
+      expect(t({ ko: '[{name}]' }, { name: `a${pua}{b}` })).toBe(`[a${pua}{b}]`)
+      expect(t({ ko: `{flag ? '{name}' : ''}` }, { flag: true, name: `${pua}'` })).toBe(`${pua}'`)
+    })
+  })
 })
