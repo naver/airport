@@ -16,13 +16,34 @@ import {
 } from './types'
 import { createLSFactory, deepEqual, roundOperation } from './utils'
 
-// While t() inserts values, template and JS string syntax characters are swapped for Private Use Area (U+E000~) characters.
+// While t() inserts values, template and JS string syntax characters are swapped for 6 consecutive Private Use Area (U+E000~U+F8FF) characters.
+// The block is picked per call among characters used neither in the language set nor in the values, so restoring never alters original text.
 const TEMPLATE_CHARS = ['{', '}', "'", '"', '`', '\\']
-const MASK_BASE = 0xe000
-const maskTemplateChars = (text: string) =>
-  text.replace(/[{}'"`\\]/g, char => String.fromCharCode(MASK_BASE + TEMPLATE_CHARS.indexOf(char)))
-const unmaskTemplateChars = (text: string) =>
-  text.replace(/[\uE000-\uE005]/g, char => TEMPLATE_CHARS[char.charCodeAt(0) - MASK_BASE])
+const PUA_START = 0xe000
+const PUA_END = 0xf8ff
+const pickMaskBase = (texts: string[]) => {
+  const used = new Set<number>()
+  texts.forEach(text => {
+    for (let i = 0; i < text.length; i++) {
+      const code = text.charCodeAt(i)
+      if (code >= PUA_START && code <= PUA_END) used.add(code)
+    }
+  })
+  for (let base = PUA_START; base + TEMPLATE_CHARS.length - 1 <= PUA_END; base += TEMPLATE_CHARS.length) {
+    if (TEMPLATE_CHARS.every((_, index) => !used.has(base + index))) return base
+  }
+  return PUA_START
+}
+const maskTemplateChars = (text: string, base: number) =>
+  text.replace(/[{}'"`\\]/g, char => String.fromCharCode(base + TEMPLATE_CHARS.indexOf(char)))
+const unmaskTemplateChars = (text: string, base: number) => {
+  let restored = ''
+  for (let i = 0; i < text.length; i++) {
+    const index = text.charCodeAt(i) - base
+    restored += index >= 0 && index < TEMPLATE_CHARS.length ? TEMPLATE_CHARS[index] : text[i]
+  }
+  return restored
+}
 
 /**
  * **Create Airport instance**
@@ -107,6 +128,7 @@ export class Airport<L extends ReadonlyArray<string>, G extends LS<L> | PartialL
   t(stringKey: string, variableMap?: any, _forcedLocale?: L[number]): string
   t(lsoOrGlobalLSKey: LSO<L> | PartialLSO<L> | keyof G | string, variableMap?: any, _forcedLocale?: L[number]): string {
     let translated = ''
+    let maskBase: number | undefined
     try {
       const locale = _forcedLocale ?? this.getLocale()
       const language = _forcedLocale ? this.splitLocale(_forcedLocale)[0] : this.getLanguage()
@@ -125,8 +147,12 @@ export class Airport<L extends ReadonlyArray<string>, G extends LS<L> | PartialL
 
       // Insert value
       // Mask syntax characters in inserted values so the expression evaluation (eval) below never reads them as template syntax or code. They are restored at the end.
+      if (typeof translated === 'string' && variableEntries.length > 0) {
+        maskBase = pickMaskBase([translated, ...variableEntries.map(([, value]) => String(value))])
+      }
+      const base = maskBase ?? PUA_START
       variableEntries.forEach(([key, value]) => {
-        const inserted = value === undefined ? '' : maskTemplateChars(String(value))
+        const inserted = value === undefined ? '' : maskTemplateChars(String(value), base)
         translated = translated?.replace(new RegExp(`\\{${key}\\}`, 'gi'), () => inserted)
       })
 
@@ -147,7 +173,8 @@ export class Airport<L extends ReadonlyArray<string>, G extends LS<L> | PartialL
     } catch (e) {
       console.error(e)
     } finally {
-      if (typeof translated === 'string') translated = unmaskTemplateChars(translated)
+      if (maskBase !== undefined && typeof translated === 'string')
+        translated = unmaskTemplateChars(translated, maskBase)
       return translated
     }
   }
