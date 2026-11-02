@@ -16,6 +16,14 @@ import {
 } from './types'
 import { createLSFactory, deepEqual, roundOperation } from './utils'
 
+// While t() inserts values, template and JS string syntax characters are swapped for Private Use Area (U+E000~) characters.
+const TEMPLATE_CHARS = ['{', '}', "'", '"', '`', '\\']
+const MASK_BASE = 0xe000
+const maskTemplateChars = (text: string) =>
+  text.replace(/[{}'"`\\]/g, char => String.fromCharCode(MASK_BASE + TEMPLATE_CHARS.indexOf(char)))
+const unmaskTemplateChars = (text: string) =>
+  text.replace(/[\uE000-\uE005]/g, char => TEMPLATE_CHARS[char.charCodeAt(0) - MASK_BASE])
+
 /**
  * **Create Airport instance**
  *
@@ -116,12 +124,10 @@ export class Airport<L extends ReadonlyArray<string>, G extends LS<L> | PartialL
             (lsoOrGlobalLSKey as string)
 
       // Insert value
+      // Mask syntax characters in inserted values so the expression evaluation (eval) below never reads them as template syntax or code. They are restored at the end.
       variableEntries.forEach(([key, value]) => {
-        if (value === undefined) {
-          translated = translated?.replace(new RegExp(`\\{${key}\\}`, 'gi'), '')
-        } else {
-          translated = translated?.replace(new RegExp(`\\{${key}\\}`, 'gi'), value as string)
-        }
+        const inserted = value === undefined ? '' : maskTemplateChars(String(value))
+        translated = translated?.replace(new RegExp(`\\{${key}\\}`, 'gi'), () => inserted)
       })
 
       translated = translated?.replace(new RegExp(`\\{(.[^\\}]*)\\}`, 'gi'), (match, p1) => {
@@ -129,11 +135,11 @@ export class Airport<L extends ReadonlyArray<string>, G extends LS<L> | PartialL
         return eval(
           `${variableEntries
             .map(([key, value]) => {
-              let val = value
-              if (typeof val === 'string') {
-                val = val.replace(/['"]+/g, '')
-              }
-              return `var ${key} = ${typeof value === 'string' ? `'${val}'` : value};`
+              // Only primitives are written as literals. Strings, arrays and objects are wrapped as string literals so they are never parsed as code.
+              const isLiteral = value == null || typeof value === 'number' || typeof value === 'boolean'
+              const formatted = isLiteral ? String(value) : JSON.stringify(String(value))
+
+              return `var ${key} = ${formatted};`
             })
             .join('')}${p1};`,
         )
@@ -141,6 +147,7 @@ export class Airport<L extends ReadonlyArray<string>, G extends LS<L> | PartialL
     } catch (e) {
       console.error(e)
     } finally {
+      if (typeof translated === 'string') translated = unmaskTemplateChars(translated)
       return translated
     }
   }
